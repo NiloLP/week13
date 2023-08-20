@@ -1,11 +1,11 @@
 const React = require('react');
 const client = require('../client');
-const {Link} = require('react-router-dom');
+const { Link } = require('react-router-dom');
 
 class PageHome extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { instrumentos: [], musicos: [] };
+		this.state = { instrumentos: [], musicos: [], bandas: []  };
 	}
 	componentDidMount() {
 		client({ method: 'GET', path: '/api/instrumentos' }).done(response => {
@@ -14,23 +14,43 @@ class PageHome extends React.Component {
 		client({ method: 'GET', path: '/api/musicos' }).done(response => {
 			this.setState({ musicos: response.entity._embedded.musicos });
 		});
+		client({ method: 'GET', path: '/api/bandas' }).done(response => {
+			this.setState({ bandas: response.entity._embedded.bandas });
+		});
 	}
 	render() {
 		return (
 			<>
-                <h1>Aplicación Demo</h1>
-				<Titulo entidad="Instrumento" />
-				<InstrumentoList instrumentos={this.state.instrumentos} />
-				<Titulo entidad="Músico" />
-				<MusicoList musicos={this.state.musicos} />
-				<br />
-				<Link to="/nuevo-musico">Nuevo Músico</Link>
+				<h1>Aplicación Demo</h1>
+
+				<div style={{ "width": "100%", "display": "flex" }}>
+					<div style={{ "width": "calc(100%/3)" }}>
+						<Titulo entidad="Instrumento" />
+						<InstrumentoList instrumentos={this.state.instrumentos} />
+						<br />
+						<Link to="/nuevo-instrumento">Nuevo Instrumento</Link>
+					</div>
+
+					<div style={{ "width": "calc(100%/3)" }}>
+						<Titulo entidad="Músico" />
+						<MusicoList musicos={this.state.musicos} />
+						<br />
+						<Link to="/nuevo-musico">Nuevo Músico</Link>
+					</div>
+
+					<div style={{ "width": "calc(100%/3)" }}>
+						<Titulo entidad="Banda" />
+						<BandaList bandas={this.state.bandas}/>
+						<br />
+						<Link to="/nueva-banda">Nuevo Banda</Link>
+					</div>
+				</div>
 			</>
 		)
 	}
 }
 
-const Titulo = ({entidad}) => {
+const Titulo = ({ entidad }) => {
 	return (
 		<>
 			<hr />
@@ -81,6 +101,25 @@ class MusicoList extends React.Component {
 	}
 }
 
+class BandaList extends React.Component {
+	render() {
+		const bandas = this.props.bandas.map(banda =>
+			<Banda key={banda._links.self.href} banda={banda} />
+		);
+		return (
+			<table border="1">
+				<tbody>
+					<tr>
+						<th>Nombre</th>
+						<th>Acciones</th>
+					</tr>
+					{bandas}
+				</tbody>
+			</table>
+		)
+	}
+}
+
 class Instrumento extends React.Component {
 	render() {
 		const id = this.props.instrumento._links.self.href.split('/').slice(-1);
@@ -104,6 +143,20 @@ class Musico extends React.Component {
 				<td>{this.props.musico.nombre}</td>
 				<td>
 					<Link to={`/editar-musico/${id}`}>Editar</Link>
+				</td>
+			</tr>
+		)
+	}
+}
+
+class Banda extends React.Component {
+	render() {
+		const id = this.props.banda._links.self.href.split("/").slice(-1);
+		return (
+			<tr>
+				<td>{this.props.banda.nombre}</td>
+				<td>
+					<Link to={`/ver-banda/${id}`}>Ver</Link>
 				</td>
 			</tr>
 		)

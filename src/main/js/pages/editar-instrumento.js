@@ -22,7 +22,7 @@ const EditarInstrumentoPage = () => {
         event.preventDefault();
         client({
             method: 'PATCH',
-            path: '/api/instrumentos' + id,
+            path: '/api/instrumentos/' + id,
             entity: instrumento,
             headers: {'Content-Type': 'application/json'}
         }).done( () => window.location = "/");
